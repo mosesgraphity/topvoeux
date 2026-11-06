@@ -62,7 +62,7 @@ h2 span{display:inline-grid;place-items:center;width:24px;height:24px;border-rad
 .up .t{flex:1;font-size:14px}
 .up .t b{display:block}
 .up .x{border:0;background:#eef1f8;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer}
-.up input{display:none}
+.up{position:relative}.up input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}.up .x{position:relative;z-index:2}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .presets button{border:1.5px solid var(--ligne);background:#fff;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer}
 .presets button:hover{border-color:var(--ciel)}
@@ -133,6 +133,13 @@ footer a{color:var(--bleu);font-weight:700;text-decoration:none}
       <div class="seg" id="fmt">
         <button data-f="story" class="on">Statut WhatsApp (9:16)</button>
         <button data-f="carre">Carré (1:1)</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Salutation</label>
+      <div class="seg" id="lang">
+        <button data-l="fr" class="on">Français · Bonne année</button>
+        <button data-l="dioula">Dioula · Sambè sambè</button>
       </div>
     </div>
     <div class="row2">
@@ -238,7 +245,7 @@ function check(code){try{code=(code||'').replace(/\s+/g,'');var p=code.split('.'
 var PASS=check(st('topvoeux-lic')||'');
 
 /* ---------- Données ---------- */
-var S={aud:'perso',tpl:'etoiles',contact:'',fmt:'story',from:'',to:'',msg:'',photo:null,logo:null};
+var S={lang:'fr',aud:'perso',tpl:'etoiles',contact:'',fmt:'story',from:'',to:'',msg:'',photo:null,logo:null};
 var MSGS={"perso": ["Que 2027 vous apporte la santé, la paix du cœur et la réussite dans chacun de vos projets. Bonne et heureuse année !", "Merci pour chaque sourire et chaque moment partagé. Je vous souhaite une année 2027 aussi belle que vous.", "Une nouvelle page s'ouvre : 365 jours pour rêver plus grand, oser plus fort et réussir ensemble. Bonne année 2027 !", "Que l'amour, l'unité et la joie règnent dans votre foyer tout au long de cette année 2027.", "Je vous souhaite une année 2027 pleine de bénédictions, de prospérité et de belles victoires.", "Nouvelle année, même amitié ! Que 2027 nous garde unis et nous comble de bonheur."], "noel": ["Que la paix et la lumière de Noël remplissent votre foyer, et que 2027 vous apporte bonheur et réussite.", "Que la magie de Noël illumine votre cœur et que la nouvelle année comble tous vos vœux.", "Paix, amour et joie pour vous et vos proches, à Noël et tout au long de 2027.", "En ce Noël, que la naissance du Christ apporte paix et espérance à votre famille. Joyeuses fêtes !"], "eglise": ["Que le Seigneur vous bénisse et vous garde, qu'Il fasse briller sa face sur vous tout au long de 2027.", "Que Dieu vous accorde santé, paix et prospérité, et que sa grâce accompagne chacun de vos pas en 2027.", "Que 2027 soit une année de foi, de témoignages et de portes ouvertes. Dieu est fidèle !", "Merci Seigneur pour l'année écoulée. Que 2027 soit remplie de ta paix et de tes bénédictions."], "ent": ["Merci pour votre confiance tout au long de l'année. Toute notre équipe vous souhaite une excellente année 2027 !", "À nos clients et partenaires : que 2027 soit une année de succès partagés, de croissance et de belles réalisations.", "Nouvelle année, même engagement : vous servir toujours mieux. Meilleurs vœux de santé et de prospérité !", "Joyeuses fêtes de fin d'année ! Merci pour votre fidélité, rendez-vous en 2027 pour de nouveaux succès.", "Que 2027 vous ouvre de nouvelles opportunités et vous apporte la réussite dans tous vos projets."]};
 var PRESET_LBL={"perso": ["Santé & réussite", "Gratitude", "Nouveau départ", "Famille", "Prospérité", "Amitié"], "noel": ["Paix & lumière", "Magie de Noël", "Famille", "Spirituel"], "eglise": ["Bénédiction", "Grâce", "Portes ouvertes", "Action de grâce"], "ent": ["Merci clients", "Partenaires", "Engagement", "Fêtes", "Ambition"]};
 var TPL=[
@@ -279,6 +286,9 @@ function burst(c,x,y,r,col,n,R){c.save();c.lineCap='round';for(var i=0;i<n;i++){
 function placeholderPhoto(c,x,y,w,h,dark){var g=c.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,dark?'#22408f':'#cfd9f3');g.addColorStop(1,dark?'#0B1F4D':'#9fb3e6');c.fillStyle=g;c.fillRect(x,y,w,h);c.fillStyle=dark?'rgba(255,255,255,.25)':'rgba(11,31,77,.25)';var cx=x+w/2,cy=y+h*.44,s=Math.min(w,h);c.beginPath();c.arc(cx,cy-s*.08,s*.12,0,7);c.fill();c.beginPath();c.ellipse(cx,cy+s*.2,s*.22,s*.15,0,Math.PI,0);c.fill()}
 
 /*HELPERS*/
+var GD={'Bonne et heureuse année':'Sambè sambè','Bonne Année 2027':'Sambè sambè 2027','Bonne Année':'Sambè sambè','Heureuse année':'Sambè sambè','& BONNE ANNÉE 2027':'& SAMBÈ SAMBÈ 2027','BONNE ANNÉE':'SAMBÈ SAMBÈ','Bonne':'Sambè','Année':'sambè','ANNÉE':'SAMBÈ'};
+function G(t){return S.lang==='dioula'&&GD[t]?GD[t]:t}
+
 /* ---------- Décors réalistes (v1.1) ---------- */
 function lerpC(a,b,t){var A=[parseInt(a.substr(1,2),16),parseInt(a.substr(3,2),16),parseInt(a.substr(5,2),16)],B=[parseInt(b.substr(1,2),16),parseInt(b.substr(3,2),16),parseInt(b.substr(5,2),16)];return 'rgb('+Math.round(A[0]+(B[0]-A[0])*t)+','+Math.round(A[1]+(B[1]-A[1])*t)+','+Math.round(A[2]+(B[2]-A[2])*t)+')'}
 function blurDraw(c,W,H,k,fn){var o=document.createElement('canvas');o.width=Math.ceil(W/k);o.height=Math.ceil(H/k);var x=o.getContext('2d');x.scale(1/k,1/k);fn(x);c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(o,0,0,W,H);c.restore()}
@@ -340,7 +350,7 @@ var R_={
   star3D(c,W*.17,H*(sq?.24:.2),W*.035,.1);star3D(c,W*.8,H*(sq?.42:.36),W*.028,.4);star3D(c,W*.12,H*(sq?.62:.7),W*.06,.6);
   c.textAlign='center';var y=sq?250:560;
   if(s.to){c.fillStyle='#8a6a2c';fit(c,'Pour '+s.to,W/2,y-(sq?150:240),W*.6,'700',sq?30:40,'Mont')}
-  c.fillStyle='#6b6b6b';fit(c,'Bonne Année',W/2,y,W-260,'400',sq?120:170,'Vibes');
+  c.fillStyle='#6b6b6b';fit(c,G('Bonne Année'),W/2,y,W-260,'400',sq?120:170,'Vibes');
   foilText(c,'2027',W/2,y+(sq?300:450),'900',sq?300:440,'Play',W-160,5);
   c.fillStyle='#4a4a4a';para(c,s.msg,W/2,y+(sq?380:580),W-240,['500','Mont'],sq?32:44,1.4,sq?2:5);
   var cb=contactBar(c,W,H,s.contact,'#ffffff','#8a6420',sq?90:120);if(cb){c.fillStyle='#d9a520';c.fillRect(0,H-cb-6,W,6)}
@@ -353,7 +363,7 @@ var R_={
   c.textAlign='center';var y=sq?470:820;
   if(s.to){c.fillStyle='#14532d';fit(c,'Pour '+s.to,W/2,y-(sq?130:200),W*.7,'700',sq?28:38,'Mont')}
   c.fillStyle='#c8102e';fit(c,'Joyeux Noël',W/2,y,W-200,'400',sq?130:180,'Vibes');
-  c.fillStyle='#14532d';c.font=F('800',sq?30:40,'Mont');spaced(c,'& BONNE ANNÉE 2027',W/2,y+(sq?70:110),sq?6:9);
+  c.fillStyle='#14532d';c.font=F('800',sq?30:40,'Mont');spaced(c,G('& BONNE ANNÉE 2027'),W/2,y+(sq?70:110),sq?6:9);
   c.fillStyle='#c8102e';c.fillRect(W/2-(sq?200:260),y+(sq?95:145),sq?400:520,3);
   c.fillStyle='#2b2b2b';para(c,s.msg,W/2,y+(sq?150:230),W-220,['500','Mont'],sq?30:42,1.4,sq?2:5);
   var cb=contactBar(c,W,H,s.contact,'#14532d','#ffffff',sq?90:120);
@@ -370,7 +380,7 @@ var R_={
   c.textAlign='center';var y=sq?250:470;
   if(s.to){c.fillStyle='#ffd9d9';fit(c,'Pour '+s.to,W/2,y-(sq?140:200),W*.7,'700',sq?28:38,'Mont')}
   c.fillStyle='#ffffff';fit(c,'Joyeux Noël',W/2,y,W-180,'400',sq?130:190,'Vibes');
-  c.font=F('800',sq?28:40,'Mont');spaced(c,'& BONNE ANNÉE 2027',W/2,y+(sq?70:120),sq?6:10);
+  c.font=F('800',sq?28:40,'Mont');spaced(c,G('& BONNE ANNÉE 2027'),W/2,y+(sq?70:120),sq?6:10);
   c.fillStyle='#ffe9e9';para(c,s.msg,W/2,y+(sq?140:240),W-220,['500','Mont'],sq?30:44,1.4,sq?2:4);
   if(s.from){c.fillStyle='#ffd27a';fit(c,s.from,W/2,cy-(sq?40:60),W-240,'400',sq?60:86,'Vibes')}
   if(s.contact){c.fillStyle='#a50d15';c.font=F('700',sq?24:30,'Mont');waIcon(c,W/2-c.measureText(s.contact).width/2-26,cy+(sq?62:96)-9,12,'#a50d15');fit(c,s.contact,W/2+10,cy+(sq?62:96),W-260,'700',sq?24:30,'Mont')}
@@ -382,7 +392,7 @@ var R_={
   star3D(c,W*.14,H*(sq?.16:.12),W*.05,.3);star3D(c,W*.22,H*(sq?.1:.08),W*.035,.7);
   c.textAlign='center';var y=sq?170:330;
   if(s.to){c.fillStyle='#8a1c2c';fit(c,'Pour '+s.to,W/2,y-(sq?100:150),W*.7,'700',sq?28:38,'Mont')}
-  c.fillStyle='#e0263f';fit(c,'Bonne',W/2,y,W*.5,'400',sq?90:120,'Vibes');c.font=F('800',sq?110:150,'Mont');fit(c,'Année',W/2,y+(sq?105:150),W-200,'800',sq?110:150,'Mont');
+  c.fillStyle='#e0263f';fit(c,G('Bonne'),W/2,y,W*.5,'400',sq?90:120,'Vibes');c.font=F('800',sq?110:150,'Mont');fit(c,G('Année'),W/2,y+(sq?105:150),W-200,'800',sq?110:150,'Mont');
   var by;if(sq){balloonText(c,'2027',W/2,y+(sq?370:0),300,W-140);by=y+400}else{balloonText(c,'20',W/2,y+560,430,W-200);balloonText(c,'27',W/2,y+960,430,W-200);by=y+1010}
   var bw=W-(sq?220:200),bh=sq?150:250;c.fillStyle='#e0263f';rr(c,(W-bw)/2,by,bw,bh,24);c.fill();c.fillStyle='#fff';para(c,s.msg,W/2,by+(sq?55:75),bw-80,['500','Mont'],sq?28:38,1.35,sq?3:4);
   var cb=contactBar(c,W,H,s.contact,'#e0263f','#ffffff',sq?80:110);
@@ -394,8 +404,8 @@ var R_={
   if(sq)fadePhoto(c,s.photo,W*.42,H*.08,W*.58,H*.92,'left',.2);else fadePhoto(c,s.photo,0,H*.36,W,H*.64,'top',.2);
   corner(c,-20,-20,false,5,sq?.8:1,[[sq?150:200,sq?190:260,sq?44:58,'rouge',0,1]]);corner(c,W+20,-20,true,9,sq?.8:1,[[W-(sq?140:190),sq?220:300,sq?50:64,'or',0,1]]);
   var cx=sq?W*.25:W/2,mw=sq?W*.44:W-200;c.textAlign='center';var y=sq?310:520;
-  c.fillStyle='#c8102e';fit(c,'Bonne',cx,y,mw,'400',sq?80:140,'Vibes');
-  c.fillStyle='#3a2a2a';fit(c,'ANNÉE',cx,y+(sq?140:200),mw,'400',sq?150:260,'Bebas');
+  c.fillStyle='#c8102e';fit(c,G('Bonne'),cx,y,mw,'400',sq?80:140,'Vibes');
+  c.fillStyle='#3a2a2a';if(S.lang==='dioula')fit(c,'SAMBÈ',cx,y+(sq?130:180),mw,'800',sq?120:200,'Mont');else fit(c,'ANNÉE',cx,y+(sq?140:200),mw,'400',sq?150:260,'Bebas');
   foilText(c,'2027',cx,y+(sq?270:380),'900',sq?120:190,'Play',mw,3);
   if(s.to){c.fillStyle='#8a1c2c';fit(c,'Pour '+s.to,cx,y-(sq?120:180),mw,'700',sq?26:36,'Mont')}
   var cb=sq?0:0;var my=sq?y+340:H*.73;
@@ -422,7 +432,7 @@ var R_={
   bokeh(c,W,H,22,17,'rgba(255,255,255,A)');blurDraw(c,W,H,7,function(x){x.strokeStyle='#d9a520';x.lineWidth=26;[[W*.02,H*.12,W*.2],[W*.95,H*.5,W*.14]].forEach(function(p){x.beginPath();for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5,r=i%2?p[2]*.45:p[2];x.lineTo(p[0]+Math.cos(a)*r,p[1]+Math.sin(a)*r)}x.closePath();x.stroke()})});
   silk(c,[[-60,H*(sq?.62:.58)],[W*.3,H*(sq?.5:.48)],[W*.6,H*(sq?.7:.62)],[W+80,H*(sq?.55:.5)]],sq?110:150,'#e8401c');
   c.textAlign='center';var y=sq?110:230;
-  c.strokeStyle='#8a5a12';c.lineWidth=4;rr(c,W/2-(sq?230:290),y-(sq?50:62),sq?460:580,sq?72:90,45);c.stroke();c.fillStyle='#8a5a12';fit(c,'BONNE ANNÉE',W/2,y,sq?420:530,'800',sq?36:46,'Mont');
+  c.strokeStyle='#8a5a12';c.lineWidth=4;rr(c,W/2-(sq?230:290),y-(sq?50:62),sq?460:580,sq?72:90,45);c.stroke();c.fillStyle='#8a5a12';fit(c,G('BONNE ANNÉE'),W/2,y,sq?420:530,'800',sq?36:46,'Mont');
   if(s.to){c.fillStyle='#e8401c';fit(c,'Bienvenue en 2027, '+s.to,W/2,y+(sq?80:130),W-200,'800',sq?30:40,'Mont')}else{c.fillStyle='#e8401c';fit(c,'BIENVENUE EN',W/2,y+(sq?80:130),W-200,'800',sq?30:40,'Mont')}
   var GOLDF=['#fff3c4','#f2c44a','#c8901f','#ffe08a'],GOLDS=['#5e3c06','#b07a18'],SILF=['#ffffff','#d5d9df','#8e959e','#eef0f3'],SILS=['#3e434a','#8e959e'];
   if(sq){extrude(c,'20',W*.36,y+420,300,'800','Mont',30,.9,GOLDF,GOLDS,W*.6);extrude(c,'27',W*.64,y+620,300,'800','Mont',30,.9,SILF,SILS,W*.6)}
@@ -459,7 +469,7 @@ var R_={
   var nx=sq?70:90,ny=sq?220:360,nw=sq?560:W-180,nh=sq?560:700;
   c.save();c.translate(nx+nw/2,ny+nh/2);c.rotate(-.04);c.fillStyle='#e9ecf3';c.fillRect(-nw/2+18,-nh/2+14,nw,nh);c.rotate(.05);c.shadowColor='rgba(0,0,0,.3)';c.shadowBlur=30;c.shadowOffsetY=12;c.fillStyle='#fbfbfd';c.fillRect(-nw/2,-nh/2,nw,nh);c.restore();
   pin(c,nx+nw*.45,ny+10,sq?24:30);
-  c.textAlign='left';var tx=nx+50,ty=ny+(sq?120:150);c.fillStyle='#1B3D8F';fit(c,'Bonne Année',tx,ty,nw-100,'800',sq?60:80,'Mont');
+  c.textAlign='left';var tx=nx+50,ty=ny+(sq?120:150);c.fillStyle='#1B3D8F';fit(c,G('Bonne Année'),tx,ty,nw-100,'800',sq?60:80,'Mont');
   if(s.to){c.fillStyle='#3E6FF0';fit(c,'À '+s.to,tx,ty+(sq?50:70),nw-100,'700',sq?26:34,'Mont');ty+=sq?40:50}
   c.fillStyle='#1B3D8F';para(c,s.msg,tx,ty+(sq?70:110),nw-100,['600','Mont'],sq?30:40,1.4,sq?7:8,'left');
   var BF=['#a9c6ff','#5a8cff','#2f63e8','#7da6ff'],BS=['#0b1f4d','#2848b8'];
@@ -473,7 +483,7 @@ var R_={
   sparkles(c,W,H,sq?70:120,GOLD,11);
   c.strokeStyle=GOLD;c.globalAlpha=.75;c.lineWidth=3;c.strokeRect(44,44,W-88,H-88);c.globalAlpha=.4;c.lineWidth=1.5;c.strokeRect(60,60,W-120,H-120);c.globalAlpha=1;
   var y=sq?150:330;c.textAlign='center';c.fillStyle=GOLD;c.font=F('700',30,'Mont');if(s.to){forLine(c,s.to,W/2,y-(sq?40:70),'#fff',sq?32:40)}
-  c.fillStyle='#fff';fit(c,'Bonne Année',W/2,y+(sq?70:110),W-200,'400',sq?120:170,'Vibes');
+  c.fillStyle='#fff';fit(c,G('Bonne Année'),W/2,y+(sq?70:110),W-200,'400',sq?120:170,'Vibes');
   c.fillStyle=goldGrad(c,y+120,y+(sq?330:480));fit(c,'2027',W/2,y+(sq?330:520),W-140,'900',sq?260:400,'Play');
   c.fillStyle=GOLD;c.fillRect(W/2-90,y+(sq?370:590),180,3);
   c.fillStyle='#E9ECF5';var hh=para(c,s.msg,W/2,y+(sq?440:700),W-240,['500','Mont'],sq?36:46,1.4,sq?3:6);
@@ -489,7 +499,7 @@ var R_={
   c.fillStyle='#030716';var x=0,R2=rnd(5);c.beginPath();c.moveTo(0,H);while(x<W){var bw=40+R2()*90,bh=(sq?40:70)+R2()*(sq?90:170);c.lineTo(x,H-bh);c.lineTo(x+bw,H-bh);x+=bw}c.lineTo(W,H);c.closePath();c.fill();
   c.textAlign='center';var y=sq?H*.44:H*.42;
   if(s.to)forLine(c,s.to,W/2,y-(sq?150:230),'#cfd9ff',sq?32:42);
-  c.fillStyle='#fff';c.font=F('400',sq?84:120,'Bebas');spaced(c,'BONNE ANNÉE',W/2,y-(sq?60:90),14);
+  c.fillStyle='#fff';c.font=F('400',sq?84:120,'Bebas');spaced(c,G('BONNE ANNÉE'),W/2,y-(sq?60:90),14);
   c.save();c.shadowColor='#3E6FF0';c.shadowBlur=60;c.fillStyle='#fff';fit(c,'2027',W/2,y+(sq?170:250),W-140,'900',sq?230:330,'Unb');c.restore();
   c.fillStyle='#E9ECF5';para(c,s.msg,W/2,y+(sq?250:380),W-220,['500','Mont'],sq?34:46,1.4,sq?3:5);
   if(s.from){c.fillStyle=GOLD;c.textAlign='center';fit(c,s.from,W/2,sq?H-150:H-330,W-200,'800',sq?44:58,'Mont')}
@@ -502,7 +512,7 @@ var R_={
   c.fillStyle='#0B1F4D';c.fillRect(0,bh,W,8);c.fillRect(0,H-bh-8,W,8);
   c.textAlign='center';var y=bh+(sq?90:200);
   if(s.to){forLine(c,s.to,W/2,y,'#1B3D8F',sq?32:44);y+=sq?60:90}
-  c.fillStyle='#0B1F4D';fit(c,'Bonne et heureuse année',W/2,y+(sq?20:30),W-160,'700',sq?58:78,'Play');
+  c.fillStyle='#0B1F4D';fit(c,G('Bonne et heureuse année'),W/2,y+(sq?20:30),W-160,'700',sq?58:78,'Play');
   c.fillStyle='#1B3D8F';fit(c,'2027',W/2,y+(sq?240:400),W-140,'400',sq?250:400,'Bebas');
   c.fillStyle='#E2B866';star4(c,W/2-(sq?230:350),y+(sq?120:200),sq?26:38);star4(c,W/2+(sq?230:350),y+(sq?120:200),sq?26:38);
   c.fillStyle='#0B1F4D';para(c,s.msg,W/2,y+(sq?310:500),W-220,['500','Mont'],sq?34:46,1.4,sq?2:5);
@@ -514,7 +524,7 @@ var R_={
   var g2=c.createLinearGradient(0,0,0,H*.22);g2.addColorStop(0,'rgba(5,14,39,.55)');g2.addColorStop(1,'rgba(5,14,39,0)');c.fillStyle=g2;c.fillRect(0,0,W,H*.22);
   c.textAlign='center';c.fillStyle='#fff';c.font=F('800',sq?30:36,'Mont');spaced(c,'MEILLEURS VŒUX',W/2,sq?80:130,10);
   var y=sq?H*.42:H*.6;
-  c.fillStyle='#fff';fit(c,'Bonne Année',W/2,y,W-160,'400',sq?100:140,'Vibes');
+  c.fillStyle='#fff';fit(c,G('Bonne Année'),W/2,y,W-160,'400',sq?100:140,'Vibes');
   c.fillStyle=goldGrad(c,y,y+(sq?200:300));fit(c,'2027',W/2,y+(sq?190:290),W-140,'900',sq?200:290,'Play');
   c.fillStyle='#E9ECF5';para(c,s.msg,W/2,y+(sq?250:380),W-200,['500','Mont'],sq?32:42,1.4,sq?2:4);
   if(s.to){c.fillStyle='#cfd9ff';c.textAlign='center';fit(c,'Pour '+s.to,W/2,sq?150:200,W-200,'700',sq?30:40,'Mont')}
@@ -530,7 +540,7 @@ var R_={
   c.strokeStyle='#fff';c.lineWidth=16;c.beginPath();c.arc(W/2,cy,r,0,7);c.stroke();c.strokeStyle='#3E6FF0';c.lineWidth=4;c.beginPath();c.arc(W/2,cy,r+24,-.4,Math.PI*1.3);c.stroke();
   c.fillStyle='#3E6FF0';star4(c,W/2+r*.86,cy-r*.8,sq?30:44);
   var y=cy+r+(sq?100:170);
-  c.fillStyle='#1B3D8F';fit(c,'Bonne Année 2027',W/2,y,W-140,'400',sq?100:140,'Vibes');
+  c.fillStyle='#1B3D8F';fit(c,G('Bonne Année 2027'),W/2,y,W-140,'400',sq?100:140,'Vibes');
   if(s.to){c.fillStyle='#0B1F4D';fit(c,'Pour '+s.to,W/2,y+(sq?60:100),W-200,'700',sq?30:40,'Mont');y+=sq?40:60}
   c.fillStyle='#0B1F4D';para(c,s.msg,W/2,y+(sq?80:130),W-220,['500','Mont'],sq?32:44,1.4,sq?2:5);
   if(s.from){c.fillStyle='#1B3D8F';c.textAlign='center';fit(c,s.from,W/2,H-(sq?125:170),W-200,'700',sq?50:66,'Play')}
@@ -541,7 +551,7 @@ var R_={
   var cy=sq?110:300,cs=sq?.8:1.5;c.fillStyle='#E2B866';c.fillRect(W/2-7*cs,cy-60*cs,14*cs,140*cs);c.fillRect(W/2-45*cs,cy-25*cs,90*cs,14*cs);
   c.textAlign='center';var y=cy+(sq?210:300);
   if(s.to){forLine(c,s.to,W/2,y-(sq?75:90),'#1B3D8F',sq?28:40)}
-  c.fillStyle='#0B1F4D';fit(c,'Heureuse année',W/2,y,W-160,'700',sq?78:110,'Play');
+  c.fillStyle='#0B1F4D';fit(c,G('Heureuse année'),W/2,y,W-160,'700',sq?78:110,'Play');
   c.fillStyle=goldGrad(c,y,y+(sq?190:300));fit(c,'2027',W/2,y+(sq?190:310),W-140,'900',sq?190:300,'Play');
   c.fillStyle='#1B3D8F';c.font=F('400italic',1,'Play');para(c,s.msg,W/2,y+(sq?260:420),W-220,['italic 600','Play'],sq?36:50,1.4,sq?2:5);
   if(s.from){c.fillStyle='#1B3D8F';c.textAlign='center';fit(c,s.from,W/2,H-(sq?125:180),W-200,'800',sq?40:54,'Mont')}
@@ -567,7 +577,7 @@ var R_={
   var ly=sq?150:260,lw=sq?300:420,lh=sq?150:210;c.fillStyle='#fff';rr(c,W/2-lw/2,ly-lh/2,lw,lh,28);c.fill();
   if(s.logo)containImg(c,s.logo,W/2,ly,lw-50,lh-40);else{c.fillStyle='#8a93ad';c.textAlign='center';c.font=F('700',26,'Mont');c.fillText('VOTRE LOGO',W/2,ly+9)}
   c.textAlign='center';var y=ly+lh/2+(sq?120:220);
-  c.fillStyle=GOLD;c.font=F('800',sq?30:38,'Mont');spaced(c,'BONNE ANNÉE',W/2,y,14);
+  c.fillStyle=GOLD;c.font=F('800',sq?30:38,'Mont');spaced(c,G('BONNE ANNÉE'),W/2,y,14);
   c.fillStyle=goldGrad(c,y,y+(sq?220:330));fit(c,'2027',W/2,y+(sq?210:330),W-140,'900',sq?220:330,'Play');
   if(s.to){c.fillStyle='#cfd9ff';fit(c,'À '+s.to,W/2,y+(sq?270:430),W-200,'700',sq?30:40,'Mont');y+=sq?40:60}
   c.fillStyle='#E9ECF5';para(c,s.msg,W/2,y+(sq?300:480),W-220,['500','Mont'],sq?32:44,1.4,sq?2:5);
@@ -634,6 +644,7 @@ var tt=0;function drawThumbsSoon(){clearTimeout(tt);tt=setTimeout(drawThumbs,250
 function seg(id,key,attr,after){var el=$(id);el.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call(el.children,function(x){x.classList.toggle('on',x===b)});S[key]=b.getAttribute(attr);after&&after()})}
 seg('aud','aud','data-a',function(){var first=TPL.filter(function(t){return t.a===S.aud})[0];S.tpl=first.id;buildTpls();buildPresets();draw()});
 seg('fmt','fmt','data-f',draw);
+seg('lang','lang','data-l',function(){draw();drawThumbsSoon()});
 ['from','to','msg','contact'].forEach(function(k){$(k).addEventListener('input',function(){S[k]=this.value.trim();draw();drawThumbsSoon()})});
 function loadImg(file,cb){var u=URL.createObjectURL(file),im=new Image();im.onload=function(){var m=1600,r=Math.min(1,m/Math.max(im.width,im.height));if(r<1){var c=document.createElement('canvas');c.width=Math.round(im.width*r);c.height=Math.round(im.height*r);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c,c.toDataURL('image/jpeg',.8))}else cb(im,u)};im.onerror=function(){toast('Image illisible, essayez une autre.')};im.src=u}
 function upl(k){$(k).addEventListener('change',function(){var f=this.files[0];if(!f)return;loadImg(f,function(img,url){S[k]=img;$(k+'Th').src=url;$(k+'T').textContent=k==='photo'?'Photo ajoutée':'Logo ajouté';$(k+'X').hidden=false;draw();drawThumbsSoon()});this.value=''});
