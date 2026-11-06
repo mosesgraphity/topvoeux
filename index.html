@@ -274,7 +274,7 @@ function rnd(seed){var s=seed||7;return function(){s=(s*16807)%2147483647;return
 function F(w,sz,fam){return w+' '+Math.round(sz)+'px '+fam}
 function wrap(c,txt,maxW){var words=String(txt).split(/\s+/),lines=[],l='';for(var i=0;i<words.length;i++){var t=l?l+' '+words[i]:words[i];if(c.measureText(t).width>maxW&&l){lines.push(l);l=words[i]}else l=t}if(l)lines.push(l);return lines}
 function para(c,txt,x,y,maxW,font,size,lh,maxLines,align){var s=size,lines;for(;s>size*0.55;s-=2){c.font=F(font[0],s,font[1]);lines=wrap(c,txt,maxW);if(lines.length<=maxLines)break}c.textAlign=align||'center';for(var i=0;i<lines.length;i++)c.fillText(lines[i],x,y+i*s*lh);return lines.length*s*lh}
-function fit(c,txt,x,y,maxW,w,size,fam){var s=size;c.font=F(w,s,fam);while(c.measureText(txt).width>maxW&&s>12){s-=2;c.font=F(w,s,fam)}c.fillText(txt,x,y);return s}
+function fit(c,txt,x,y,maxW,w,size,fam){var s=size;c.font=F(w,s,fam);while(c.measureText(txt).width>maxW&&s>12){s-=2;c.font=F(w,s,fam)}if(s>=70&&c.shadowBlur===0){c.save();c.shadowColor='rgba(0,0,0,.22)';c.shadowBlur=s*.09;c.shadowOffsetY=s*.035;c.fillText(txt,x,y);c.restore()}else c.fillText(txt,x,y);return s}
 function spaced(c,txt,x,y,sp){var chars=txt.split(''),w=0,i;for(i=0;i<chars.length;i++)w+=c.measureText(chars[i]).width+(i<chars.length-1?sp:0);var cx=x-(c.textAlign==='center'?w/2:0),al=c.textAlign;c.textAlign='left';for(i=0;i<chars.length;i++){c.fillText(chars[i],cx,y);cx+=c.measureText(chars[i]).width+sp}c.textAlign=al}
 function cover(c,img,x,y,w,h,fy){var r=Math.max(w/img.width,h/img.height),iw=img.width*r,ih=img.height*r;c.drawImage(img,x+(w-iw)/2,y+(h-ih)*(fy==null?.5:fy),iw,ih)}
 function containImg(c,img,cx,cy,mw,mh){var r=Math.min(mw/img.width,mh/img.height),w=img.width*r,h=img.height*r;c.drawImage(img,cx-w/2,cy-h/2,w,h)}
@@ -551,7 +551,7 @@ var R_={
  }
 };
 /* assets 3D */
-var A={};['gold2027','balloon2027','balloon20','balloon27','relief20','relief27','blue2027','star','garland','corner','gifts','cross'].forEach(function(n){var i=new Image();i.decoding='async';i.onload=function(){if(window.__tvReady)window.__tvReady()};i.src='assets/'+n+'.webp?v=3';A[n]=i});
+var A={};['gold2027','balloon2027','balloon20','balloon27','relief20','relief27','blue2027','star','garland','corner','gifts','cross'].forEach(function(n){var i=new Image();i.decoding='async';i.onload=function(){if(window.__tvReady)window.__tvReady()};i.src='assets/'+n+'.webp?v=5';A[n]=i});
 function ok(n){var i=A[n];return i&&i.complete&&i.naturalWidth>0}
 function img(c,n,cx,cy,w,h){if(!ok(n))return 0;var i=A[n],r=w?w/i.naturalWidth:h/i.naturalHeight;if(w&&h)r=Math.min(w/i.naturalWidth,h/i.naturalHeight);var dw=i.naturalWidth*r,dh=i.naturalHeight*r;c.drawImage(i,cx-dw/2,cy-dh/2,dw,dh);return dh}
 function imgTopW(c,n,x,y,w){if(!ok(n))return w*.33;var i=A[n],h=i.naturalHeight*w/i.naturalWidth;c.drawImage(i,x,y,w,h);return h}
